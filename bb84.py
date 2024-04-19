@@ -42,13 +42,17 @@ def extract_key(correct_indices, bit_seq):
     return ''.join([bit_seq[i] for i in correct_indices])
 
 def calculate_error_rate(key1, key2):
-    return sum(1 for k1, k2 in zip(key1, key2) if k1 != k2) / len(key1)
+    if len(key1) == 0 or len(key2) == 0:
+        return 1.0
+    else:
+        return sum(1 for k1, k2 in zip(key1, key2) if k1 != k2) / max(len(key1), len(key2))
 
-def simulate_eve():
-    choice = input("Would you like to simulate Eve's actions? (yes/no): ").lower()
-    return choice == 'yes'
 
 # Simulation
+def simulate_eve():
+    choice = input("Would you like to simulate Eve's actions? (y/n): ").lower()
+    return choice == 'y'
+
 def intercept_qubits(qubit_seq, simulate_eve):
     intercepted_seq = []
     if simulate_eve:
@@ -80,10 +84,13 @@ def run_bb84_protocol(qubit_length):
     bob_key = extract_key(correct_measurements, bob_bit_seq)
     alice_key = extract_key(correct_measurements, alice_bit_seq)
 
-    if len(bob_key) == 0 or len(alice_key) == 0:
-        error_rate = 1.0
-    else:
+    if bob_key == alice_key:
+        master_key = bob_key
         error_rate = calculate_error_rate(bob_key, alice_key)
+    else:
+        master_key = None
+        error_rate = 1.0
+        print("Eavesdropping detected. Key discarded.")
 
     print('Alice\'s prepared qubit sequence:', alice_qubit_seq)
     print('Alice\'s bit sequence:', alice_bit_seq)
@@ -93,10 +100,11 @@ def run_bb84_protocol(qubit_length):
     print('Correct indices:', correct_measurements)
     print('Bob\'s key:', bob_key)
     print('Alice\'s key:', alice_key)
+    print('Master key:', master_key)
     print('Error rate:', error_rate)
 
-    return error_rate
+    return error_rate, master_key
 
 if __name__ == '__main__':
     qubit_length = int(input('Please enter the length of the set of polarized photons prepared by Alice: '))
-    error_rate = run_bb84_protocol(qubit_length)
+    error_rate, master_key = run_bb84_protocol(qubit_length)
