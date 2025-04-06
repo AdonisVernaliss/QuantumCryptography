@@ -59,8 +59,7 @@ def apply_rotation(theta_degrees, state):
     if state == '|-⟩':
         R = np.array([
             [np.cos(theta / 2), -np.sin(theta / 2)],
-            [-np.cos(theta / 2), -np.sin(theta / 2)],
-            [np.cos(theta / 2), np.sin(theta / 2)]
+            [np.sin(theta / 2), np.cos(theta / 2)]
         ])
         initial_state = np.array([1 / np.sqrt(2), 1 / np.sqrt(2)])
     elif state == '|+⟩':
